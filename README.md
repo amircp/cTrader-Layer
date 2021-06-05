@@ -23,7 +23,7 @@ await connection.open();
 
 ### How to authenticate an application
 You can use the `sendCommand` method to send a command with payload to the server.
-The method returns a `Promise` resolved only when a response from the server is recevied.
+The method returns a `Promise` resolved only when a response from the server is received.
 If the response to the command contains an error code then the returned `Promise` is rejected.
 
 ```javascript
