@@ -40,3 +40,10 @@ You can send a heartbeat message every 25 seconds to keep the connection alive.
 ```javascript
 setInterval(() => connection.sendHeartbeat(), 25000);
 ```
+
+### How to listen events from server
+```javascript
+connection.on(connection.getPayloadTypeByName("ProtoOASpotEvent"), (event) => {
+    console.log(event);
+});
+```
