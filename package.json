@@ -1,0 +1,10 @@
+{
+    "name": "@reiryoku/ctrader-layer",
+    "version": "1.0.0",
+    "description": "A Node.js communication layer for the cTrader Open API.",
+    "main": "./entry/node/main.js",
+    "dependencies": {
+        "protobufjs": "5.0.1",
+        "uuid": "8.3.2"
+    }
+}
