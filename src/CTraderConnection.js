@@ -1,5 +1,6 @@
 const EventEmitter = require("events");
 const util = require("util");
+const path = require("path");
 const { v1 } = require("uuid");
 const { CTraderCommandList } = require("./CTraderCommandList");
 const { CTraderEncoderDecoder } = require("./CTraderEncoderDecoder");
@@ -12,8 +13,8 @@ class CTraderConnection {
 
         this.encoderDecoder = new CTraderEncoderDecoder();
         this.protobufReader = new CTraderProtobufReader([
-            { file: './protobuf/OpenApiCommonMessages.proto', },
-            { file: './protobuf/OpenApiMessages.proto', },
+            { file: path.resolve(__dirname, "../protobuf/OpenApiCommonMessages.proto"), },
+            { file: path.resolve(__dirname, "../protobuf/OpenApiMessages.proto"), },
         ]);
         this.socket = new CTraderSocket({ host, port, });
 
