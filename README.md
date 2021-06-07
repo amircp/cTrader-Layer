@@ -47,3 +47,6 @@ connection.on(connection.getPayloadTypeByName("ProtoOASpotEvent"), (event) => {
     console.log(event);
 });
 ```
+
+## Contribution
+You can create a PR or open an issue for bugs report or ideas.
