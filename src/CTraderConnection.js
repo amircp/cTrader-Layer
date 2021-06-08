@@ -8,37 +8,42 @@ const { CTraderProtobufReader } = require("./CTraderProtobufReader");
 const { CTraderSocket } = require("./CTraderSocket");
 
 class CTraderConnection {
+    commandList;
+    #encoderDecoder;
+    #protobufReader;
+    #socket;
+
     constructor ({ host, port, }) {
         EventEmitter.call(this);
 
-        this.encoderDecoder = new CTraderEncoderDecoder();
-        this.protobufReader = new CTraderProtobufReader([
+        this.commandList = new CTraderCommandList({ send: (...parameters) => this.send(...parameters), });
+        this.#encoderDecoder = new CTraderEncoderDecoder();
+        this.#protobufReader = new CTraderProtobufReader([
             { file: path.resolve(__dirname, "../protobuf/OpenApiCommonMessages.proto"), },
             { file: path.resolve(__dirname, "../protobuf/OpenApiMessages.proto"), },
         ]);
-        this.socket = new CTraderSocket({ host, port, });
+        this.#socket = new CTraderSocket({ host, port, });
 
-        this.encoderDecoder.setDecodeHandler((data) => this.onDecodedData(this.protobufReader.decode(data)));
-        this.protobufReader.load();
-        this.protobufReader.build();
+        this.#encoderDecoder.setDecodeHandler((data) => this.onDecodedData(this.#protobufReader.decode(data)));
+        this.#protobufReader.load();
+        this.#protobufReader.build();
 
-        this.socket.onOpen = (...parameters) => this.onOpen(...parameters);
-        this.socket.onData = (...parameters) => this.onData(...parameters);
-        this.socket.onClose = (...parameters) => this.onClose(...parameters);
-        this.commandList = new CTraderCommandList({ send: (...parameters) => this.send(...parameters), });
+        this.#socket.onOpen = (...parameters) => this.onOpen(...parameters);
+        this.#socket.onData = (...parameters) => this.onData(...parameters);
+        this.#socket.onClose = (...parameters) => this.onClose(...parameters);
     }
 
     getPayloadTypeByName (name) {
-        return this.protobufReader.getPayloadTypeByName(name);
+        return this.#protobufReader.getPayloadTypeByName(name);
     }
 
     send (data) {
-        this.socket.send(this.encoderDecoder.encode(data));
+        this.#socket.send(this.#encoderDecoder.encode(data));
     }
 
     async sendCommand (payloadType, data) {
         const clientMsgId = v1();
-        const message = this.protobufReader.encode(payloadType, data, clientMsgId);
+        const message = this.#protobufReader.encode(payloadType, data, clientMsgId);
 
         return this.commandList.create({ clientMsgId, message, });
     }
@@ -58,7 +63,7 @@ class CTraderConnection {
             this._rejectConnectionPromise = reject;
         });
 
-        this.socket.connect();
+        this.#socket.connect();
 
         return connectionPromise;
     }
@@ -71,7 +76,7 @@ class CTraderConnection {
     }
 
     onData (data) {
-        this.encoderDecoder.decode(data);
+        this.#encoderDecoder.decode(data);
     }
 
     onDecodedData (data) {
@@ -80,10 +85,10 @@ class CTraderConnection {
         const sentCommand = this.commandList.extractById(clientMsgId);
 
         if (sentCommand) {
-            this._onCommandResponse(sentCommand, payloadType, data.payload);
+            CTraderConnection.#onCommandResponse(sentCommand, payloadType, data.payload);
         }
         else {
-            this._onPushEvent(payloadType, data.payload);
+            this.#onPushEvent(payloadType, data.payload);
         }
     }
 
@@ -95,17 +100,17 @@ class CTraderConnection {
         this.sendCommand(this.getPayloadTypeByName("ProtoHeartbeatEvent"));
     }
 
-    _onCommandResponse (command, payloadType, message) {
+    #onPushEvent (payloadType, message) {
+        this.emit(payloadType, message);
+    }
+
+    static #onCommandResponse (command, payloadType, message) {
         if (typeof message.errorCode !== "undefined") {
             command.reject(message);
         }
         else {
             command.resolve(message);
         }
-    }
-
-    _onPushEvent (payloadType, message) {
-        this.emit(payloadType, message);
     }
 }
 

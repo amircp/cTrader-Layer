@@ -1,10 +1,14 @@
 const tls = require("tls");
 
 class CTraderSocket {
+    host;
+    port;
+    #socket;
+
     constructor ({ host, port, }) {
         this.host = host;
         this.port = port;
-        this.socket = undefined;
+        this.#socket = undefined;
     }
 
     connect () {
@@ -14,11 +18,11 @@ class CTraderSocket {
         socket.on("end", this.onClose);
         socket.on("error", this.onError);
 
-        this.socket = socket;
+        this.#socket = socket;
     }
 
     send (data) {
-        this.socket.write(data);
+        this.#socket.write(data);
     }
 
     onOpen () {

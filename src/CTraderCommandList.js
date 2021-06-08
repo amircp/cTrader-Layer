@@ -1,11 +1,12 @@
 const { CTraderCommand, } = require("./CTraderCommand");
 
 class CTraderCommandList {
+    openCommands;
     #send;
 
     constructor ({ send, }) {
-        this.#send = send;
         this.openCommands = [];
+        this.#send = send;
     }
 
     create ({ clientMsgId, message, }) {

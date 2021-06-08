@@ -1,4 +1,7 @@
 class CTraderCommand {
+    clientMsgId;
+    responsePromise;
+
     constructor ({ clientMsgId, }) {
         this.clientMsgId = clientMsgId;
         this.responsePromise = new Promise((resolve, reject) => {
