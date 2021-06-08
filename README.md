@@ -43,6 +43,10 @@ setInterval(() => connection.sendHeartbeat(), 25000);
 
 ### How to listen events from server
 ```javascript
+connection.on(connection.getPayloadTypeByName("..."), (event) => {
+    console.log(event);
+});
+
 connection.on(connection.getPayloadTypeByName("ProtoOASpotEvent"), (event) => {
     console.log(event);
 });
