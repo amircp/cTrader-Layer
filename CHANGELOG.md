@@ -1,3 +1,4 @@
+* Use TypeScript and refactor codebase.
 * Refactor codebase and use private fields.
 * Improve documentation.
 

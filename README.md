@@ -1,3 +1,9 @@
+<br>
+<p align="center"> 
+    <img src="images/ctrader-logo.svg" alt="Mida" width="350px">
+</p>
+<br>
+
 # cTrader Layer
 A Node.js communication layer for the cTrader [Open API](https://connect.spotware.com).
 
