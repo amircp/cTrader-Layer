@@ -3,7 +3,7 @@
 </p>
 
 # cTrader Layer
-A Node.js communication layer for the cTrader [Open API](https://connect.spotware.com).
+A Node.js communication layer for the cTrader [Open API](https://connect.spotware.com).<br>
 This implementation is created and maintained by Reiryoku Technologies and its contributors.
 
 ## Installation
