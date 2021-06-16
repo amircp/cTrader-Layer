@@ -19,15 +19,14 @@ export class CTraderEncoderDecoder {
     }
 
     public encode (data: GenericObject): Buffer {
-        const newData = data.toBuffer();
-
+        const normalizedData = data.toBuffer();
         const sizeLength: number = this.#sizeLength;
-        const dataLength: number = data.length;
+        const normalizedDataLength: number = normalizedData.length;
         const size = Buffer.alloc(sizeLength);
 
-        size.writeInt32BE(dataLength, 0);
+        size.writeInt32BE(normalizedDataLength, 0);
 
-        return Buffer.concat([ size, newData, ], sizeLength + dataLength);
+        return Buffer.concat([ size, normalizedData, ], sizeLength + normalizedDataLength);
     }
 
     public decode (buffer: Buffer): void {
