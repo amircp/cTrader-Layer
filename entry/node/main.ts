@@ -1,1 +1,1 @@
-export * from "#CTraderConnection";
+export * from "!/src/core/CTraderConnection";
