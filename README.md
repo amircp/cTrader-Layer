@@ -26,11 +26,20 @@ const connection = new CTraderConnection({
 await connection.open();
 ```
 
-### How to authenticate an application
+### How to send commands
 You can use the `sendCommand` method to send a command with payload to the server.
 The method returns a `Promise` resolved only when a response from the server is received.
 If the response to the command contains an error code then the returned `Promise` is rejected.
 
+```javascript
+await connection.sendCommand(
+    connection.getPayloadTypeByName("PayloadName"), {
+        foo: "bar",
+    },
+);
+```
+
+### How to authenticate an application
 ```javascript
 await connection.sendCommand(
     connection.getPayloadTypeByName("ProtoOAApplicationAuthReq"), {
@@ -51,6 +60,18 @@ setInterval(() => connection.sendHeartbeat(), 25000);
 connection.on(connection.getPayloadTypeByName("EventName"), (event) => {
     console.log(event);
 });
+```
+
+### How to get the access token profile information
+Retrieving this information doesn't require a socket connection, but an HTTP request.
+```javascript
+console.log(await CTraderConnection.getAccessTokenProfile("access-token"));
+```
+
+### How to get the access token accounts
+Retrieving this information doesn't require a socket connection, but an HTTP request.
+```javascript
+console.log(await CTraderConnection.getAccessTokenAccounts("access-token"));
 ```
 
 ## Contribution

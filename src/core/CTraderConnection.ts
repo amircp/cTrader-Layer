@@ -8,6 +8,7 @@ import { CTraderCommand } from "#commands/CTraderCommand";
 import { GenericObject } from "#utilities/GenericObject";
 import { CTraderProtobufReader } from "#protobuf/CTraderProtobufReader";
 import { CTraderConnectionParameters } from "#CTraderConnectionParameters";
+import axios from "axios";
 
 export class CTraderConnection extends EventEmitter {
     readonly #commandMap: CTraderCommandMap;
@@ -112,6 +113,20 @@ export class CTraderConnection extends EventEmitter {
 
     #onPushEvent (payloadType: number, message: GenericObject): void {
         this.emit(payloadType.toString(), message);
+    }
+
+    public static async getAccessTokenProfile (accessToken: string): Promise<GenericObject> {
+        return JSON.parse(await axios.get(`https://api.spotware.com/connect/profile?access_token=${accessToken}`));
+    }
+
+    public static async getAccessTokenAccounts (accessToken: string): Promise<GenericObject[]> {
+        const parsedResponse: any = JSON.parse(await axios.get(`https://api.spotware.com/connect/tradingaccounts?access_token=${accessToken}`));
+
+        if (!Array.isArray(parsedResponse)) {
+            return [];
+        }
+
+        return parsedResponse;
     }
 
     static #onCommandResponse (command: CTraderCommand, message: GenericObject): void {
