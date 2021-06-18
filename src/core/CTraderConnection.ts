@@ -1,15 +1,13 @@
-import { CTraderCommandMap } from "#commands/CTraderCommandMap";
 import * as EventEmitter from "events";
+import * as path from "path";
+import { v1 } from "uuid";
+import { CTraderCommandMap } from "#commands/CTraderCommandMap";
 import { CTraderEncoderDecoder } from "#encoder-decoder/CTraderEncoderDecoder";
 import { CTraderSocket } from "#sockets/CTraderSocket";
 import { CTraderCommand } from "#commands/CTraderCommand";
 import { GenericObject } from "#utilities/GenericObject";
 import { CTraderProtobufReader } from "#protobuf/CTraderProtobufReader";
-
-const util = require("util");
-const path = require("path");
-const { v1, } = require("uuid");
-
+import { CTraderConnectionParameters } from "#CTraderConnectionParameters";
 
 export class CTraderConnection extends EventEmitter {
     readonly #commandMap: CTraderCommandMap;
@@ -19,13 +17,17 @@ export class CTraderConnection extends EventEmitter {
     #resolveConnectionPromise?: (...parameters: any[]) => void;
     #rejectConnectionPromise?: (...parameters: any[]) => void;
 
-    public constructor ({ host, port, }: GenericObject) {
+    public constructor ({ host, port, }: CTraderConnectionParameters) {
         super();
 
         this.#commandMap = new CTraderCommandMap({ send: (data: any): void => this.send(data), });
         this.#encoderDecoder = new CTraderEncoderDecoder();
         // eslint-disable-next-line max-len
-        this.#protobufReader = new CTraderProtobufReader([ { file: path.resolve(__dirname, "../../../protobuf/OpenApiCommonMessages.proto"), }, { file: path.resolve(__dirname, "../../../protobuf/OpenApiMessages.proto"), }, ]);
+        this.#protobufReader = new CTraderProtobufReader([ {
+            file: path.resolve(__dirname, "../../../protobuf/OpenApiCommonMessages.proto"),
+        }, {
+            file: path.resolve(__dirname, "../../../protobuf/OpenApiMessages.proto"),
+        }, ]);
         this.#socket = new CTraderSocket({ host, port, });
         this.#resolveConnectionPromise = undefined;
         this.#rejectConnectionPromise = undefined;
@@ -93,7 +95,7 @@ export class CTraderConnection extends EventEmitter {
         const sentCommand = this.#commandMap.extractById(clientMsgId);
 
         if (sentCommand) {
-            CTraderConnection.#onCommandResponse(sentCommand, payloadType, data.payload);
+            CTraderConnection.#onCommandResponse(sentCommand, data.payload);
         }
         else {
             this.#onPushEvent(payloadType, data.payload);
@@ -112,7 +114,7 @@ export class CTraderConnection extends EventEmitter {
         this.emit(payloadType.toString(), message);
     }
 
-    static #onCommandResponse (command: CTraderCommand, payloadType: number, message: GenericObject): void {
+    static #onCommandResponse (command: CTraderCommand, message: GenericObject): void {
         if (typeof message.errorCode !== "undefined") {
             command.reject(message);
         }

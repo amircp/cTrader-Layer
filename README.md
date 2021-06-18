@@ -1,5 +1,5 @@
 <p align="center"> 
-    <img src="images/ctrader-logo.svg" alt="Mida" width="350px">
+    <img src="images/ctrader-logo.svg" alt="cTrader" width="350px">
 </p>
 
 # cTrader Layer
@@ -52,7 +52,7 @@ connection.on(connection.getPayloadTypeByName("..."), (event) => {
     console.log(event);
 });
 
-connection.on(connection.getPayloadTypeByName("ProtoOASpotEvent"), (event) => {
+connection.on(connection.getPayloadTypeByName("EventName"), (event) => {
     console.log(event);
 });
 ```
