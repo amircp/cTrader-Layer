@@ -28,21 +28,17 @@ The method returns a `Promise` resolved only when a response from the server is 
 If the response to the command contains an error code then the returned `Promise` is rejected.
 
 ```javascript
-await connection.sendCommand(
-    connection.getPayloadTypeByName("PayloadName"), {
-        foo: "bar",
-    },
-);
+await connection.sendCommand(connection.getPayloadTypeByName("PayloadName"), {
+    foo: "bar",
+});
 ```
 
 ### How to authenticate an application
 ```javascript
-await connection.sendCommand(
-    connection.getPayloadTypeByName("ProtoOAApplicationAuthReq"), {
-        clientId: "foo",
-        clientSecret: "bar",
-    },
-);
+await connection.sendCommand(connection.getPayloadTypeByName("ProtoOAApplicationAuthReq"), {
+    clientId: "foo",
+    clientSecret: "bar",
+});
 ```
 
 ### How to keep connection alive
@@ -59,13 +55,13 @@ connection.on(connection.getPayloadTypeByName("EventName"), (event) => {
 ```
 
 ### How to get the access token profile information
-Retrieving this information doesn't require a socket connection, but an HTTP request.
+Through HTTP request.
 ```javascript
 console.log(await CTraderConnection.getAccessTokenProfile("access-token"));
 ```
 
 ### How to get the access token accounts
-Retrieving this information doesn't require a socket connection, but an HTTP request.
+Through HTTP request.
 ```javascript
 console.log(await CTraderConnection.getAccessTokenAccounts("access-token"));
 ```

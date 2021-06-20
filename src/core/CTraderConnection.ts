@@ -4,7 +4,6 @@ import { v1 } from "uuid";
 import { CTraderCommandMap } from "#commands/CTraderCommandMap";
 import { CTraderEncoderDecoder } from "#encoder-decoder/CTraderEncoderDecoder";
 import { CTraderSocket } from "#sockets/CTraderSocket";
-import { CTraderCommand } from "#commands/CTraderCommand";
 import { GenericObject } from "#utilities/GenericObject";
 import { CTraderProtobufReader } from "#protobuf/CTraderProtobufReader";
 import { CTraderConnectionParameters } from "#CTraderConnectionParameters";
@@ -92,11 +91,17 @@ export class CTraderConnection extends EventEmitter {
 
     onDecodedData (data: GenericObject): void {
         const payloadType = data.payloadType;
+        const payload = data.payload;
         const clientMsgId = data.clientMsgId;
         const sentCommand = this.#commandMap.extractById(clientMsgId);
 
         if (sentCommand) {
-            CTraderConnection.#onCommandResponse(sentCommand, data.payload);
+            if (typeof payload.errorCode !== "undefined") {
+                sentCommand.reject(payload);
+            }
+            else {
+                sentCommand.resolve(payload);
+            }
         }
         else {
             this.#onPushEvent(payloadType, data.payload);
@@ -127,14 +132,5 @@ export class CTraderConnection extends EventEmitter {
         }
 
         return parsedResponse;
-    }
-
-    static #onCommandResponse (command: CTraderCommand, message: GenericObject): void {
-        if (typeof message.errorCode !== "undefined") {
-            command.reject(message);
-        }
-        else {
-            command.resolve(message);
-        }
     }
 }
