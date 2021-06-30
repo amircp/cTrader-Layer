@@ -1,6 +1,6 @@
 {
     "name": "@reiryoku/ctrader-layer",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "A Node.js communication layer for the cTrader Open API.",
     "license": "MIT",
     "homepage": "https://github.com/Reiryoku-Technologies/cTrader-Layer",
@@ -26,6 +26,7 @@
     "files": [
         "build",
         "entry",
+        "protobuf",
         "src"
     ],
     "dependencies": {

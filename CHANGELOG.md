@@ -1,3 +1,7 @@
+1.2.1 - 30-06-2021
+===================
+* Include protobuf files in published package.
+
 1.2.0 - 19-06-2021
 ===================
 * Create "getAccessTokenProfile" utility method.
