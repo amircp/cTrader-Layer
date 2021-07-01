@@ -1,3 +1,7 @@
+1.2.2 - 01-07-2021
+===================
+* Handle "errorCode" defined with null value.
+
 1.2.1 - 30-06-2021
 ===================
 * Include protobuf files in published package.

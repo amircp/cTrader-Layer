@@ -96,7 +96,7 @@ export class CTraderConnection extends EventEmitter {
         const sentCommand = this.#commandMap.extractById(clientMsgId);
 
         if (sentCommand) {
-            if (typeof payload.errorCode !== "undefined") {
+            if (typeof payload.errorCode === "string" || typeof payload.errorCode === "number") {
                 sentCommand.reject(payload);
             }
             else {
