@@ -28,14 +28,14 @@ The method returns a `Promise` resolved only when a response from the server is 
 If the response to the command contains an error code then the returned `Promise` is rejected.
 
 ```javascript
-await connection.sendCommand(connection.getPayloadTypeByName("PayloadName"), {
+await connection.sendCommand("PayloadName", {
     foo: "bar",
 });
 ```
 
 ### How to authenticate an application
 ```javascript
-await connection.sendCommand(connection.getPayloadTypeByName("ProtoOAApplicationAuthReq"), {
+await connection.sendCommand("ProtoOAApplicationAuthReq", {
     clientId: "foo",
     clientSecret: "bar",
 });
@@ -49,7 +49,7 @@ setInterval(() => connection.sendHeartbeat(), 25000);
 
 ### How to listen events from server
 ```javascript
-connection.on(connection.getPayloadTypeByName("EventName"), (event) => {
+connection.on("EventName", (event) => {
     console.log(event);
 });
 ```

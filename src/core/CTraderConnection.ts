@@ -20,7 +20,7 @@ export class CTraderConnection extends EventEmitter {
     public constructor ({ host, port, }: CTraderConnectionParameters) {
         super();
 
-        this.#commandMap = new CTraderCommandMap({ send: (data: any): void => this.send(data), });
+        this.#commandMap = new CTraderCommandMap({ send: (data: any): void => this.#send(data), });
         this.#encoderDecoder = new CTraderEncoderDecoder();
         // eslint-disable-next-line max-len
         this.#protobufReader = new CTraderProtobufReader([ {
@@ -32,31 +32,28 @@ export class CTraderConnection extends EventEmitter {
         this.#resolveConnectionPromise = undefined;
         this.#rejectConnectionPromise = undefined;
 
-        this.#encoderDecoder.setDecodeHandler((data) => this.onDecodedData(this.#protobufReader.decode(data)));
+        this.#encoderDecoder.setDecodeHandler((data) => this.#onDecodedData(this.#protobufReader.decode(data)));
         this.#protobufReader.load();
         this.#protobufReader.build();
 
-        this.#socket.onOpen = (): void => this.onOpen();
-        this.#socket.onData = (data: any): void => this.onData(data);
-        this.#socket.onClose = (): void => this.onClose();
+        this.#socket.onOpen = (): void => this.#onOpen();
+        this.#socket.onData = (data: any): void => this.#onData(data);
+        this.#socket.onClose = (): void => this.#onClose();
     }
 
     public getPayloadTypeByName (name: string): number {
         return this.#protobufReader.getPayloadTypeByName(name);
     }
 
-    public send (data: GenericObject): void {
-        this.#socket.send(this.#encoderDecoder.encode(data));
-    }
-
-    async sendCommand (payloadType: number, data?: GenericObject): Promise<GenericObject> {
+    async sendCommand (payloadType: string | number, data?: GenericObject): Promise<GenericObject> {
         const clientMsgId: string = v1();
-        const message: any = this.#protobufReader.encode(payloadType, data ?? {}, clientMsgId);
+        const normalizedPayloadType: number = typeof payloadType === "number" ? payloadType : this.getPayloadTypeByName(payloadType);
+        const message: any = this.#protobufReader.encode(normalizedPayloadType, data ?? {}, clientMsgId);
 
         return this.#commandMap.create({ clientMsgId, message, });
     }
 
-    async trySendCommand (payloadType: number, data?: GenericObject): Promise<GenericObject | undefined> {
+    async trySendCommand (payloadType: string | number, data?: GenericObject): Promise<GenericObject | undefined> {
         try {
             return await this.sendCommand(payloadType, data);
         }
@@ -65,7 +62,11 @@ export class CTraderConnection extends EventEmitter {
         }
     }
 
-    open (): Promise<unknown> {
+    public sendHeartbeat (): void {
+        this.sendCommand("ProtoHeartbeatEvent");
+    }
+
+    public open (): Promise<unknown> {
         const connectionPromise = new Promise((resolve, reject) => {
             this.#resolveConnectionPromise = resolve;
             this.#rejectConnectionPromise = reject;
@@ -76,7 +77,17 @@ export class CTraderConnection extends EventEmitter {
         return connectionPromise;
     }
 
-    onOpen (): void {
+    public override on (type: string, listener: (...parameters: any) => any): this {
+        const normalizedType: string = Number.isFinite(Number.parseInt(type, 10)) ? type : this.getPayloadTypeByName(type).toString();
+
+        return super.on(normalizedType, listener);
+    }
+
+    #send (data: GenericObject): void {
+        this.#socket.send(this.#encoderDecoder.encode(data));
+    }
+
+    #onOpen (): void {
         if (this.#resolveConnectionPromise) {
             this.#resolveConnectionPromise();
         }
@@ -85,11 +96,11 @@ export class CTraderConnection extends EventEmitter {
         this.#rejectConnectionPromise = undefined;
     }
 
-    onData (data: Buffer): void {
+    #onData (data: Buffer): void {
         this.#encoderDecoder.decode(data);
     }
 
-    onDecodedData (data: GenericObject): void {
+    #onDecodedData (data: GenericObject): void {
         const payloadType = data.payloadType;
         const payload = data.payload;
         const clientMsgId = data.clientMsgId;
@@ -108,12 +119,8 @@ export class CTraderConnection extends EventEmitter {
         }
     }
 
-    onClose (): void {
+    #onClose (): void {
         // Silence is golden.
-    }
-
-    sendHeartbeat (): void {
-        this.sendCommand(this.getPayloadTypeByName("ProtoHeartbeatEvent"));
     }
 
     #onPushEvent (payloadType: number, message: GenericObject): void {
