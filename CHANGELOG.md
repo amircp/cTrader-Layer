@@ -1,3 +1,7 @@
+1.3.0 - 06-07-2021
+===================
+* Create internal decoding of payload type.
+
 1.2.2 - 01-07-2021
 ===================
 * Handle "errorCode" defined with null value.
